@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Room Type Oracle — NYC Airbnb Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header class="topbar">
+  <svg class="skyline" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,80 L20,80 L20,60 L40,60 L40,90 L60,90 L60,40 L70,40 L70,20 L80,20 L80,40 L90,40 L90,70 L110,70 L110,50 L130,50 L130,85 L150,85 L150,30 L160,30 L160,10 L172,10 L172,30 L182,30 L182,55 L200,55 L200,75 L220,75 L220,45 L235,45 L235,95 L255,95 L255,65 L270,65 L270,25 L280,25 L280,15 L292,15 L292,65 L310,65 L310,80 L330,80 L330,50 L345,50 L345,90 L365,90 L365,35 L378,35 L378,5 L390,5 L390,35 L400,35 L400,60 L420,60 L420,85 L440,85 L440,55 L455,55 L455,20 L468,20 L468,55 L480,55 L480,75 L500,75 L500,45 L515,45 L515,95 L535,95 L535,30 L548,30 L548,60 L565,60 L565,85 L585,85 L585,40 L598,40 L598,15 L610,15 L610,40 L622,40 L622,70 L642,70 L642,90 L660,90 L660,55 L675,55 L675,25 L688,25 L688,55 L700,55 L700,80 L720,80 L720,50 L735,50 L735,95 L755,95 L755,65 L770,65 L770,10 L780,10 L780,65 L800,65 L800,85 L818,85 L818,45 L832,45 L832,75 L850,75 L850,55 L865,55 L865,20 L878,20 L878,55 L892,55 L892,90 L912,90 L912,60 L925,60 L925,30 L938,30 L938,60 L950,60 L950,80 L970,80 L970,50 L985,50 L985,95 L1005,95 L1005,65 L1020,65 L1020,25 L1032,25 L1032,65 L1045,65 L1045,90 L1065,90 L1065,55 L1080,55 L1080,15 L1092,15 L1092,55 L1105,55 L1105,80 L1125,80 L1125,50 L1140,50 L1140,95 L1160,95 L1160,70 L1175,70 L1175,40 L1188,40 L1188,80 L1200,80 L1200,120 Z" />
+  </svg>
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">◎</span>
+      <span class="brand-text">ROOM&nbsp;TYPE&nbsp;ORACLE</span>
+    </div>
+    <div class="status-pill" id="statusPill">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusLabel">CONNECTING…</span>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- LEFT: INTAKE FORM -->
+  <section class="panel intake" aria-labelledby="intakeTitle">
+    <div class="eyebrow">NYC AIRBNB · CLASSIFICATION MODEL</div>
+    <h1 id="intakeTitle">What kind of stay is this listing?</h1>
+    <p class="lede">Feed it the listing details. The model reads five boroughs' worth of history and calls the room type.</p>
+
+    <form id="predictForm" novalidate>
+
+      <fieldset class="line line-blue">
+        <legend><span class="bullet bullet-blue">A</span> Location</legend>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="latitude">Latitude</label>
+            <input type="number" id="latitude" name="latitude" step="0.0001" min="-90" max="90" value="40.7128" required />
+          </div>
+          <div class="field">
+            <label for="longitude">Longitude</label>
+            <input type="number" id="longitude" name="longitude" step="0.0001" min="-180" max="180" value="-73.9560" required />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="neighbourhood_group">Borough</label>
+            <select id="neighbourhood_group" name="neighbourhood_group" required>
+              <option value="Manhattan">Manhattan</option>
+              <option value="Brooklyn">Brooklyn</option>
+              <option value="Queens">Queens</option>
+              <option value="Bronx">Bronx</option>
+              <option value="Staten Island">Staten Island</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="neighbourhood">Neighbourhood</label>
+            <input list="neighbourhoodList" id="neighbourhood" name="neighbourhood" placeholder="Start typing…" value="Williamsburg" required autocomplete="off" />
+            <datalist id="neighbourhoodList"></datalist>
+          </div>
+        </div>
+
+        <svg class="borough-map" id="boroughMap" viewBox="0 0 300 220" aria-hidden="true">
+          <path id="map-bronx" class="borough-shape" d="M150,10 L210,20 L220,55 L195,80 L150,70 L140,35 Z"></path>
+          <path id="map-manhattan" class="borough-shape" d="M148,72 L165,78 L158,150 L140,148 Z"></path>
+          <path id="map-queens" class="borough-shape" d="M170,58 L245,60 L260,120 L205,140 L180,95 Z"></path>
+          <path id="map-brooklyn" class="borough-shape" d="M150,150 L205,142 L225,175 L190,205 L155,195 Z"></path>
+          <path id="map-statenisland" class="borough-shape" d="M60,150 L100,155 L105,200 L65,205 Z"></path>
+        </svg>
+      </fieldset>
+
+      <fieldset class="line line-yellow">
+        <legend><span class="bullet bullet-yellow">B</span> Pricing &amp; stay</legend>
+
+        <div class="field">
+          <label for="price">Price per night <span class="unit">USD</span></label>
+          <input type="number" id="price" name="price" min="1" step="1" value="150" required />
+        </div>
+
+        <div class="field">
+          <label for="minimum_nights">Minimum nights <output id="minimum_nights_out">3</output></label>
+          <input type="range" id="minimum_nights" name="minimum_nights" min="1" max="365" value="3" required />
+        </div>
+      </fieldset>
+
+      <fieldset class="line line-pink">
+        <legend><span class="bullet bullet-pink">C</span> Host &amp; availability</legend>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="number_of_reviews">Reviews (total)</label>
+            <input type="number" id="number_of_reviews" name="number_of_reviews" min="0" step="1" value="12" required />
+          </div>
+          <div class="field">
+            <label for="reviews_per_month">Reviews / month</label>
+            <input type="number" id="reviews_per_month" name="reviews_per_month" min="0" step="0.01" value="0.8" required />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="calculated_host_listings_count">Host's total listings</label>
+            <input type="number" id="calculated_host_listings_count" name="calculated_host_listings_count" min="0" step="1" value="1" required />
+          </div>
+          <div class="field">
+            <label for="availability_365">Days available/yr <output id="availability_365_out">180</output></label>
+            <input type="range" id="availability_365" name="availability_365" min="0" max="365" value="180" required />
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="api-row">
+        <label for="apiUrl">API endpoint</label>
+        <input type="text" id="apiUrl" value="http://127.0.0.1:8000" spellcheck="false" />
+      </div>
+
+      <button type="submit" class="predict-btn" id="predictBtn">
+        <span class="btn-label">CALL&nbsp;IT</span>
+        <span class="btn-arrow">→</span>
+      </button>
+      <p class="error-msg" id="errorMsg" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- RIGHT: RESULT CONSOLE -->
+  <section class="panel console" aria-labelledby="consoleTitle">
+    <div class="console-head">
+      <span class="eyebrow">PREDICTION</span>
+      <span class="console-time" id="consoleTime">--:--:--</span>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board-label">ROOM&nbsp;TYPE</div>
+      <div class="flap-board" id="flapBoard" aria-live="polite"></div>
+    </div>
+
+    <div class="prob-section" id="probSection">
+      <div class="prob-row" data-class="Entire home/apt">
+        <span class="prob-dot dot-blue"></span>
+        <span class="prob-name">Entire home/apt</span>
+        <div class="prob-track"><div class="prob-fill fill-blue" style="width:0%"></div></div>
+        <span class="prob-value">0%</span>
+      </div>
+      <div class="prob-row" data-class="Private room">
+        <span class="prob-dot dot-yellow"></span>
+        <span class="prob-name">Private room</span>
+        <div class="prob-track"><div class="prob-fill fill-yellow" style="width:0%"></div></div>
+        <span class="prob-value">0%</span>
+      </div>
+      <div class="prob-row" data-class="Shared room">
+        <span class="prob-dot dot-pink"></span>
+        <span class="prob-name">Shared room</span>
+        <div class="prob-track"><div class="prob-fill fill-pink" style="width:0%"></div></div>
+        <span class="prob-value">0%</span>
+      </div>
+    </div>
+
+    <div class="console-footer">
+      <span id="consoleHint">Fill the form and hit Call It — the board updates live.</span>
+    </div>
+  </section>
+
+</main>
+
+<footer class="sitefoot">
+  <span>Model: RandomForestClassifier · trained on AB_NYC_2019</span>
+  <span class="dot-sep">·</span>
+  <span>FastAPI backend required at the endpoint above</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
