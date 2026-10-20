@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 import pandas as pd
 from pydantic import BaseModel, Field
 import joblib
@@ -37,9 +38,17 @@ class Features(BaseModel):
 
 
 
-@app.get('/')
-def greet():
-    return "Hello Guyss"
+@app.get("/")
+def home():
+    return FileResponse("index.html")
+
+@app.get("/style.css")
+def css():
+    return FileResponse("style.css")
+
+@app.get("/script.js")
+def js():
+    return FileResponse("script.js")
 
 
 @app.post('/predict')
