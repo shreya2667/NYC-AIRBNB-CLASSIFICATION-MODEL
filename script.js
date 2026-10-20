@@ -123,6 +123,7 @@ function setBoardText(label){
 const statusDot = document.getElementById('statusDot');
 const statusLabel = document.getElementById('statusLabel');
 const apiUrlInput = document.getElementById('apiUrl');
+apiUrlInput.value = window.location.origin;
 
 function getApiBase(){
   return apiUrlInput.value.trim().replace(/\/+$/, '');
